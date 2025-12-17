@@ -20,7 +20,7 @@ class OracleConfig:
 
 @dataclass
 class ScraperConfig:
-    base_url: str = "https://www.linkedin.com/jobs/search"
+    base_url: str = "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search"
     headless: bool = os.getenv("SCRAPER_HEADLESS", "true").lower() == "true"
     page_load_timeout: int = int(os.getenv("PAGE_LOAD_TIMEOUT", "30"))
     max_jobs: int = int(os.getenv("MAX_JOBS", "50"))
