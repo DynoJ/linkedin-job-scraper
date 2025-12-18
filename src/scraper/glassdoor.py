@@ -1,6 +1,5 @@
 import time
 from typing import List, Optional
-import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,29 +7,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 
 from src.config.settings import scraper_config
+from src.scraper.base import BaseScraper
 from src.scraper.parser import ParsedJob, parse_location, extract_skills
 
 
-class GlassdoorScraper:
+class GlassdoorScraper(BaseScraper):
+    
     def __init__(self):
-        self.driver: Optional[uc.Chrome] = None
+        super().__init__()
         self.base_url = "https://www.glassdoor.com/Job"
-
-    def _init_driver(self) -> None:
-        options = uc.ChromeOptions()
-        if scraper_config.headless:
-            options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--window-size=1920,1080")
-
-        self.driver = uc.Chrome(options=options)
-        self.driver.set_page_load_timeout(scraper_config.page_load_timeout)
-
-    def _close_driver(self) -> None:
-        if self.driver:
-            self.driver.quit()
-            self.driver = None
 
     def scrape_jobs(self, keywords: str, location: str = "United States") -> List[ParsedJob]:
         """Scrape Glassdoor job listings."""
@@ -146,11 +131,9 @@ class GlassdoorScraper:
     def _get_description(self, card) -> str:
         """Click job card and extract description."""
         try:
-            # Scroll card into view
             self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", card)
             time.sleep(0.5)
             
-            # Use JavaScript click
             self.driver.execute_script("arguments[0].click();", card)
             time.sleep(1.5)
             

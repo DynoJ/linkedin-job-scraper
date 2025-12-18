@@ -1,33 +1,15 @@
 import time
 from typing import List, Optional
-import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 from src.config.settings import scraper_config
+from src.scraper.base import BaseScraper
 from src.scraper.parser import ParsedJob, parse_location, parse_post_date
 
 
-class LinkedInScraper:
-    def __init__(self):
-        self.driver: Optional[uc.Chrome] = None
-
-    def _init_driver(self) -> None:
-        options = uc.ChromeOptions()
-        if scraper_config.headless:
-            options.add_argument("--headless=new")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--window-size=1920,1080")
-
-        self.driver = uc.Chrome(options=options)
-        self.driver.set_page_load_timeout(scraper_config.page_load_timeout)
-
-    def _close_driver(self) -> None:
-        if self.driver:
-            self.driver.quit()
-            self.driver = None
-
+class LinkedInScraper(BaseScraper):
+    
     def scrape_jobs(self, keywords: str, location: str = "United States") -> List[ParsedJob]:
         """Scrape LinkedIn job listings."""
         jobs = []
