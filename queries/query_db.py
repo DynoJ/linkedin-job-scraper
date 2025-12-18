@@ -2,6 +2,11 @@
 Database query tool for LinkedIn job scraper.
 Interactive CLI for querying the normalized database.
 """
+import sys
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import logging
 from src.db.connection import Database
@@ -21,9 +26,13 @@ class QueryTool:
     def list_tables(self):
         """List all tables in the database."""
         with Database.get_cursor() as cursor:
-            cursor.execute("SELECT table_name FROM user_tables")
+            cursor.execute("""
+                SELECT table_name FROM user_tables 
+                WHERE table_name IN ('COMPANIES', 'LOCATIONS', 'SKILLS', 'JOBS', 'JOB_SKILLS')
+                ORDER BY table_name
+            """)
             tables = cursor.fetchall()
-            print("\nAvailable tables:")
+            print("\nProject tables:")
             for table in tables:
                 print(f"  - {table[0]}")
             return tables
@@ -144,10 +153,10 @@ class QueryTool:
                 JOIN companies c ON j.company_id = c.company_id
                 JOIN locations l ON j.location_id = l.location_id
                 WHERE UPPER(l.city) LIKE UPPER(:1) 
-                   OR UPPER(l.state) LIKE UPPER(:1)
-            """, (pattern,))
+                    OR UPPER(l.state) LIKE UPPER(:2)
+            """, (pattern, pattern))
             jobs = cursor.fetchall()
-            
+        
             print(f"\nJobs in '{location}':")
             print("=" * 60)
             if jobs:
